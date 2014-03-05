@@ -1,7 +1,7 @@
-# recent-files package
+# Recent files package for atom
 
 Allows you to open recent directories.
 (look under the file menu)
 
-## To Do
-* Recent files
+## To do
+Recent files
