@@ -1,7 +1,7 @@
 {
   "name": "recent-files",
   "main": "./lib/recent-files",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Allows for opening recent files/folders",
   "repository": "https://github.com/goddardc/atom-recent-files",
@@ -9,6 +9,5 @@
   "engines": {
     "atom": ">0.50.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
