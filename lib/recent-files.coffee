@@ -1,4 +1,4 @@
-recentPaths = []
+recentPaths = ['/Users/AbominableSnowman/Desktop/Potential Skier Targets', '/Users/goddardc/.atom/packages/recent-files', '/Users/Gru/Desktop/Dropbox/Evil Plans']
 
 module.exports =
   configDefaults:
@@ -7,7 +7,7 @@ module.exports =
 
   activate: ->
     @maxRecentDirectories = atom.config.get('recent-files.maxRecentDirectories')
-    @loadPaths()
+    #@loadPaths()
     @insertCurrentPath()
     @createMenu(@createSubmenu())
     @addListeners()
