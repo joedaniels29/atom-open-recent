@@ -1,11 +1,7 @@
-# Recent files package for atom
+# Recent Files package for atom
 
-Allows you to open recent directories.
-(look under the file menu)
+Allows you to open up recent files in the current window, and recent workspaces in new windows.
 
 ## Screenshot
 
-![Choose recent directories](http://imgur.com/h1RWQDm.png)
-
-## To do
-Recent files
+![](http://i.imgur.com/d9y4iAi.png)
