@@ -36,15 +36,17 @@ RecentFiles.prototype.addCommandListeners = ->
   #--- Commands
   # recent-files:open-recent-file-#
   for index, path of @db.get('files')
-    openRecentFileHandler = ->
-      atom.workspace.open path
-    atom.workspaceView.on "recent-files:open-recent-file-#{index}", openRecentFileHandler
+    do (path) ->
+      atom.workspaceView.on "recent-files:open-recent-file-#{index}", ->
+        console.log path
+        atom.workspace.open path
 
   # recent-files:open-recent-path-#
   for index, path of @db.get('paths')
-    openRecentPathHandler = ->
-      atom.open { pathsToOpen: [path] }
-    atom.workspaceView.on "recent-files:open-recent-path-#{index}", openRecentPathHandler
+    do (path) ->
+      atom.workspaceView.on "recent-files:open-recent-path-#{index}", ->
+        console.log path
+        atom.open { pathsToOpen: [path] }
 
 RecentFiles.prototype.addListeners = ->
   #--- Commands
