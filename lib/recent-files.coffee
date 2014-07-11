@@ -1,29 +1,36 @@
-DB = {
-  get: (name) ->
-    data = localStorage['recentPaths']
-    data = if data? then JSON.parse(data) else {}
-    return data[name]
-  set: (name, value) ->
-    data = localStorage['recentPaths']
-    data = if data? then JSON.parse(data) else {}
-    data[name] = value
-    localStorage['recentPaths'] = JSON.stringify(data)
-}
-
-
-  
+DB = {}
+DB.getData = ->
+  data = localStorage['recentPaths']
+  data = if data? then JSON.parse(data) else {}
+  return data
+DB.setData = (data) ->
+  localStorage['recentPaths'] = JSON.stringify(data)
+DB.get = (name) ->
+  data = DB.getData()
+  return data[name]
+DB.set = (name, value) ->
+  data = DB.getData()
+  data[name] = value
+  DB.setData(data)
 
 
 module.exports =
   configDefaults:
-    maxRecentDirectories: 10
+    maxRecentFiles: 8
+    maxRecentDirectories: 8
+
+  DB: DB
 
   handleStorage: (e) ->
     if e.key is "recentPaths"
       @update()
 
   activate: ->
-    @maxRecentDirectories = atom.config.get('recent-files.maxRecentDirectories')
+    # Migrate v0.3.0 -> v1.0.0
+    if DB.getData() instanceof Array
+      DB.setData({ paths: DB.getData() })
+
+    # Defaults
     DB.set('paths', []) unless DB.get('paths')
     DB.set('files', []) unless DB.get('files')
   
@@ -36,7 +43,6 @@ module.exports =
 
     path = atom.project.getRootDirectory().path
     recentPaths = DB.get('paths')
-    maxRecentDirectories = atom.config.get('recent-files.maxRecentDirectories')
 
     # Remove if already listed
     index = recentPaths.indexOf path
@@ -46,6 +52,7 @@ module.exports =
     recentPaths.splice 0, 0, path
 
     # Limit
+    maxRecentDirectories = atom.config.get('recent-files.maxRecentDirectories')
     if recentPaths.length > maxRecentDirectories
       recentPaths.splice maxRecentDirectories, recentPaths.length - maxRecentDirectories
 
@@ -93,15 +100,29 @@ module.exports =
 
 
   addListeners: ->
-    for index, path of DB.get('paths')
+    # recent-files:open-recent-file-#
+    for index, path of DB.get('files')
       openRecentFileHandler = ->
         atom.open { pathsToOpen: [path] }
-      atom.workspaceView.on "recent-files:#{index}", openRecentFileHandler
-        
+      atom.workspaceView.on "recent-files:open-recent-file-#{index}", openRecentFileHandler
+
+    # recent-files:open-recent-path-#
+    for index, path of DB.get('paths')
+      openRecentPathHandler = ->
+        atom.open { pathsToOpen: [path] }
+      atom.workspaceView.on "recent-files:open-recent-path-#{index}", openRecentPathHandler
+
+    # recent-files:clear
+    atom.workspaceView.on "recent-files:clear", ->
+      DB.set('files', [])
+      DB.set('paths', [])
 
   removeListeners: ->
+    for index, path of DB.get('files')
+      atom.workspaceView.off "recent-files:open-recent-file-#{index}"
     for index, path of DB.get('paths')
-      atom.workspaceView.off "recent-files:#{index}"
+      atom.workspaceView.off "recent-files:open-recent-path-#{index}"
+    atom.workspaceView.off "recent-files:clear"
 
   deactivate: ->
     @removeListeners()
