@@ -2,6 +2,9 @@
   "name": "recent-files",
   "main": "./lib/recent-files",
   "version": "1.0.0",
+  "contributors": [
+    "Zren (https://github.com/Zren/)"
+  ],
   "private": true,
   "description": "Allows for opening recent files/folders",
   "repository": "https://github.com/goddardc/atom-recent-files",
