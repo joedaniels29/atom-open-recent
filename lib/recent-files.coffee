@@ -28,6 +28,7 @@ RecentFiles.prototype.storageHandler = (e) ->
     @update()
 
 RecentFiles.prototype.uriOpenedHandler = (filePath='', options={}) ->
+  return if filePath.indexOf '://'
   @insertFilePath(filePath) if filePath
   return
 
