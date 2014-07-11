@@ -82,7 +82,7 @@ RecentFiles.prototype.removeListeners = ->
 #--- RecentFiles: Methods
 RecentFiles.prototype.init = ->
   @addListeners()
-  
+
   # Migrate v0.3.0 -> v1.0.0
   if @db.getData() instanceof Array
     @db.setData({ paths: @db.getData() })
@@ -162,7 +162,6 @@ RecentFiles.prototype.updateMenu = ->
     if dropdown.label is "&File"
       for item in dropdown.submenu
         if item.command is "pane:reopen-closed-item" or item.label is "Open Recent"
-          console.log 'updateMenu'
           delete item.command
           item.label = "Open Recent"
           item.submenu = @createSubmenu()
@@ -173,7 +172,6 @@ RecentFiles.prototype.updateMenu = ->
 
 #--- RecentFiles: 
 RecentFiles.prototype.update = ->
-  console.log 'update'
   @removeCommandListeners()
   @updateMenu()
   @addCommandListeners()
@@ -194,7 +192,6 @@ module.exports =
     atom.config.setDefaults('recent-files', @configDefaults)
     @model = new RecentFiles()
     @model.init()
-    window.rf = @model
 
   deactivate: ->
     RecentFiles.destroy()
