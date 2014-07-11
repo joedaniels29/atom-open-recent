@@ -197,4 +197,5 @@ module.exports =
     @model.init()
 
   deactivate: ->
-    RecentFiles.destroy()
+    @model.destroy()
+    @model = null
