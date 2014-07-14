@@ -28,30 +28,26 @@ RecentFiles.prototype.storageHandler = (e) ->
     @update()
 
 RecentFiles.prototype.uriOpenedHandler = (filePath='', options={}) ->
+  # Ignore anything thats not a file.
   return if filePath.indexOf '://'
+
   @insertFilePath(filePath) if filePath
-  return
+  return # Don't return anything. Coffeescript return the last line.
 
 #--- RecentFiles: Listeners
 RecentFiles.prototype.addCommandListeners = ->
   #--- Commands
   # recent-files:open-recent-file-#
   for index, path of @db.get('files')
-    do (path) ->
-      atom.workspaceView.on "recent-files:open-recent-file-#{index}", ->
-        console.log path
-        atom.workspace.open path
+    do (path) => # Explicit closure
+      atom.workspaceView.on "recent-files:open-recent-file-#{index}", =>
+        @openFile path
 
   # recent-files:open-recent-path-#
   for index, path of @db.get('paths')
-    do (path) ->
-      atom.workspaceView.on "recent-files:open-recent-path-#{index}", ->
-        console.log path
-        atom.open { pathsToOpen: [path] }
-
-RecentFiles.prototype.addListeners = ->
-  #--- Commands
-  @addCommandListeners()
+    do (path) => # Explicit closure
+      atom.workspaceView.on "recent-files:open-recent-path-#{index}", =>
+        @openPath path
 
   # recent-files:clear
   atom.workspaceView.on "recent-files:clear", =>
@@ -59,6 +55,16 @@ RecentFiles.prototype.addListeners = ->
     @db.set('paths', [])
     @update()
 
+
+RecentFiles.prototype.openFile = (path) ->
+  atom.workspace.open path
+
+RecentFiles.prototype.openPath = (path) ->
+  atom.open { pathsToOpen: [path] }
+
+RecentFiles.prototype.addListeners = ->
+  #--- Commands
+  @addCommandListeners()
 
   #--- Events
   atom.workspace.registerOpener @uriOpenedHandler.bind(@)
@@ -172,8 +178,7 @@ RecentFiles.prototype.updateMenu = ->
           break # break for item
       break # break for dropdown
 
-
-#--- RecentFiles: 
+#--- RecentFiles:
 RecentFiles.prototype.update = ->
   @removeCommandListeners()
   @updateMenu()
@@ -184,7 +189,7 @@ RecentFiles.prototype.destroy = ->
 
 
 #--- Module
-module.exports = 
+module.exports =
   configDefaults:
     maxRecentFiles: 8
     maxRecentDirectories: 8
