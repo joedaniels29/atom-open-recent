@@ -23,16 +23,19 @@ RecentFiles = ->
   return @
 
 #--- RecentFiles: Event Handlers
-RecentFiles.prototype.storageHandler = (e) ->
+RecentFiles.prototype.onLocalStorageEvent = (e) ->
   if e.key is @db.key
     @update()
 
-RecentFiles.prototype.uriOpenedHandler = (filePath='', options={}) ->
+RecentFiles.prototype.onUriOpened = ->
+  editor = atom.workspace.getActiveEditor()
+  filePath = editor?.buffer?.file?.path
+
   # Ignore anything thats not a file.
-  return if filePath.indexOf '://'
+  return unless filePath
+  return unless filePath.indexOf '://' is -1
 
   @insertFilePath(filePath) if filePath
-  return # Don't return anything. Coffeescript return the last line.
 
 #--- RecentFiles: Listeners
 RecentFiles.prototype.addCommandListeners = ->
@@ -67,10 +70,10 @@ RecentFiles.prototype.addListeners = ->
   @addCommandListeners()
 
   #--- Events
-  atom.workspace.registerOpener @uriOpenedHandler.bind(@)
+  atom.workspace.on 'uri-opened', @onUriOpened.bind(@)
 
   # Notify other windows during a setting data in localStorage.
-  window.addEventListener "storage", @storageHandler.bind(@)
+  window.addEventListener "storage", @onLocalStorageEvent.bind(@)
 
 RecentFiles.prototype.removeCommandListeners = ->
   #--- Commands
@@ -85,7 +88,7 @@ RecentFiles.prototype.removeListeners = ->
   @removeCommandListeners()
 
   #--- Events
-  atom.workspace.unregisterOpener @uriOpenedHandler.bind(@) # Not working
+  atom.workspaceView.off 'editor:attached'
   window.removeEventListener 'storage', @storageHandler.bind(@)
 
 #--- RecentFiles: Methods
