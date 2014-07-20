@@ -1,13 +1,11 @@
 {
-  "name": "recent-files",
-  "main": "./lib/recent-files",
+  "name": "open-recent",
+  "description": "Opening recent files/folders from the menu.",
+  "main": "./lib/main",
   "version": "1.0.0",
-  "contributors": [
-    "Zren (https://github.com/Zren/)"
-  ],
-  "private": true,
-  "description": "Allows for opening recent files/folders",
-  "repository": "https://github.com/goddardc/atom-recent-files",
+  "author": "Zren (https://github.com/Zren/)",
+  "contributors": [],
+  "repository": "https://github.com/Zren/atom-open-recent",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"

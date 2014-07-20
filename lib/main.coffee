@@ -17,17 +17,17 @@ DB.prototype.set = (name, value) ->
   @setData(data)
 
 
-#--- RecentFiles
-RecentFiles = ->
-  @db = new DB('recentPaths')
+#--- OpenRecent
+OpenRecent = ->
+  @db = new DB('openRecent')
   return @
 
-#--- RecentFiles: Event Handlers
-RecentFiles.prototype.onLocalStorageEvent = (e) ->
+#--- OpenRecent: Event Handlers
+OpenRecent.prototype.onLocalStorageEvent = (e) ->
   if e.key is @db.key
     @update()
 
-RecentFiles.prototype.onUriOpened = ->
+OpenRecent.prototype.onUriOpened = ->
   editor = atom.workspace.getActiveEditor()
   filePath = editor?.buffer?.file?.path
 
@@ -37,35 +37,35 @@ RecentFiles.prototype.onUriOpened = ->
 
   @insertFilePath(filePath) if filePath
 
-#--- RecentFiles: Listeners
-RecentFiles.prototype.addCommandListeners = ->
+#--- OpenRecent: Listeners
+OpenRecent.prototype.addCommandListeners = ->
   #--- Commands
-  # recent-files:open-recent-file-#
+  # open-recent:open-recent-file-#
   for index, path of @db.get('files')
     do (path) => # Explicit closure
-      atom.workspaceView.on "recent-files:open-recent-file-#{index}", =>
+      atom.workspaceView.on "open-recent:open-recent-file-#{index}", =>
         @openFile path
 
-  # recent-files:open-recent-path-#
+  # open-recent:open-recent-path-#
   for index, path of @db.get('paths')
     do (path) => # Explicit closure
-      atom.workspaceView.on "recent-files:open-recent-path-#{index}", =>
+      atom.workspaceView.on "open-recent:open-recent-path-#{index}", =>
         @openPath path
 
-  # recent-files:clear
-  atom.workspaceView.on "recent-files:clear", =>
+  # open-recent:clear
+  atom.workspaceView.on "open-recent:clear", =>
     @db.set('files', [])
     @db.set('paths', [])
     @update()
 
 
-RecentFiles.prototype.openFile = (path) ->
+OpenRecent.prototype.openFile = (path) ->
   atom.workspace.open path
 
-RecentFiles.prototype.openPath = (path) ->
+OpenRecent.prototype.openPath = (path) ->
   atom.open { pathsToOpen: [path] }
 
-RecentFiles.prototype.addListeners = ->
+OpenRecent.prototype.addListeners = ->
   #--- Commands
   @addCommandListeners()
 
@@ -75,15 +75,15 @@ RecentFiles.prototype.addListeners = ->
   # Notify other windows during a setting data in localStorage.
   window.addEventListener "storage", @onLocalStorageEvent.bind(@)
 
-RecentFiles.prototype.removeCommandListeners = ->
+OpenRecent.prototype.removeCommandListeners = ->
   #--- Commands
   for index, path of @db.get('files')
-    atom.workspaceView.off "recent-files:open-recent-file-#{index}"
+    atom.workspaceView.off "open-recent:open-recent-file-#{index}"
   for index, path of @db.get('paths')
-    atom.workspaceView.off "recent-files:open-recent-path-#{index}"
-  atom.workspaceView.off "recent-files:clear"
+    atom.workspaceView.off "open-recent:open-recent-path-#{index}"
+  atom.workspaceView.off "open-recent:clear"
 
-RecentFiles.prototype.removeListeners = ->
+OpenRecent.prototype.removeListeners = ->
   #--- Commands
   @removeCommandListeners()
 
@@ -91,13 +91,9 @@ RecentFiles.prototype.removeListeners = ->
   atom.workspaceView.off 'editor:attached'
   window.removeEventListener 'storage', @storageHandler.bind(@)
 
-#--- RecentFiles: Methods
-RecentFiles.prototype.init = ->
+#--- OpenRecent: Methods
+OpenRecent.prototype.init = ->
   @addListeners()
-
-  # Migrate v0.3.0 -> v1.0.0
-  if @db.getData() instanceof Array
-    @db.setData({ paths: @db.getData() })
 
   # Defaults
   @db.set('paths', []) unless @db.get('paths')
@@ -106,7 +102,7 @@ RecentFiles.prototype.init = ->
   @insertCurrentPath()
   @update()
 
-RecentFiles.prototype.insertCurrentPath = ->
+OpenRecent.prototype.insertCurrentPath = ->
   return unless atom.project.getRootDirectory()
 
   path = atom.project.getRootDirectory().path
@@ -120,14 +116,14 @@ RecentFiles.prototype.insertCurrentPath = ->
   recentPaths.splice 0, 0, path
 
   # Limit
-  maxRecentDirectories = atom.config.get('recent-files.maxRecentDirectories')
+  maxRecentDirectories = atom.config.get('open-recent.maxRecentDirectories')
   if recentPaths.length > maxRecentDirectories
     recentPaths.splice maxRecentDirectories, recentPaths.length - maxRecentDirectories
 
   @db.set('paths', recentPaths)
   @update()
 
- RecentFiles.prototype.insertFilePath = (path) ->
+ OpenRecent.prototype.insertFilePath = (path) ->
   recentFiles = @db.get('files')
 
   # Remove if already listed
@@ -138,15 +134,15 @@ RecentFiles.prototype.insertCurrentPath = ->
   recentFiles.splice 0, 0, path
 
   # Limit
-  maxRecentFiles = atom.config.get('recent-files.maxRecentFiles')
+  maxRecentFiles = atom.config.get('open-recent.maxRecentFiles')
   if recentFiles.length > maxRecentFiles
     recentFiles.splice maxRecentFiles, recentFiles.length - maxRecentFiles
 
   @db.set('files', recentFiles)
   @update()
 
-#--- RecentFiles: Menu
-RecentFiles.prototype.createSubmenu = ->
+#--- OpenRecent: Menu
+OpenRecent.prototype.createSubmenu = ->
   submenu = []
   submenu.push { command: "pane:reopen-closed-item", label: "Reopen Closed File" }
   submenu.push { type: "separator" }
@@ -155,23 +151,23 @@ RecentFiles.prototype.createSubmenu = ->
   recentFiles = @db.get('files')
   if recentFiles.length
     for index, path of recentFiles
-      submenu.push { label: path, command: "recent-files:open-recent-file-#{index}" }
+      submenu.push { label: path, command: "open-recent:open-recent-file-#{index}" }
     submenu.push { type: "separator" }
 
   # Root Paths
   recentPaths = @db.get('paths')
   if recentPaths.length
     for index, path of recentPaths
-      submenu.push { label: path, command: "recent-files:open-recent-path-#{index}" }
+      submenu.push { label: path, command: "open-recent:open-recent-path-#{index}" }
     submenu.push { type: "separator" }
 
-  submenu.push { command: "recent-files:clear", label: "Clear List" }
+  submenu.push { command: "open-recent:clear", label: "Clear List" }
   return submenu
 
-RecentFiles.prototype.updateMenu = ->
-  # need to place our menu in top section
+OpenRecent.prototype.updateMenu = ->
+  # Need to place our menu in top section
   for dropdown in atom.menu.template
-    if dropdown.label is "&File"
+    if dropdown.label is "File" or dropdown.label is "&File"
       for item in dropdown.submenu
         if item.command is "pane:reopen-closed-item" or item.label is "Open Recent"
           delete item.command
@@ -181,13 +177,13 @@ RecentFiles.prototype.updateMenu = ->
           break # break for item
       break # break for dropdown
 
-#--- RecentFiles:
-RecentFiles.prototype.update = ->
+#--- OpenRecent:
+OpenRecent.prototype.update = ->
   @removeCommandListeners()
   @updateMenu()
   @addCommandListeners()
 
-RecentFiles.prototype.destroy = ->
+OpenRecent.prototype.destroy = ->
   @removeListeners()
 
 
@@ -200,8 +196,8 @@ module.exports =
   model: null
 
   activate: ->
-    atom.config.setDefaults('recent-files', @configDefaults)
-    @model = new RecentFiles()
+    atom.config.setDefaults('open-recent', @configDefaults)
+    @model = new OpenRecent()
     @model.init()
 
   deactivate: ->

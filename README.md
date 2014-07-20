@@ -1,6 +1,6 @@
-# Recent Files package for atom
+# Open Recent Files/Folders
 
-Allows you to open up recent files in the current window, and recent workspaces in new windows.
+Allows you to open up recent files in the current window, and recent folders as a new workspace in a new window.
 
 ## Screenshot
 
