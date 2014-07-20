@@ -89,7 +89,7 @@ OpenRecent.prototype.removeListeners = ->
 
   #--- Events
   atom.workspaceView.off 'editor:attached'
-  window.removeEventListener 'storage', @storageHandler.bind(@)
+  window.removeEventListener 'storage', @onLocalStorageEvent.bind(@)
 
 #--- OpenRecent: Methods
 OpenRecent.prototype.init = ->
