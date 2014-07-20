@@ -1,6 +1,6 @@
 # Open Recent Files/Folders
 
-Allows you to open up recent files in the current window, and recent folders as a new workspace in a new window.
+Allows you to open up recent files in the current window, and recent folders in a new window.
 
 ## Screenshot
 
