@@ -1,6 +1,6 @@
 {
   "name": "open-recent",
-  "description": "Opening recent files/folders from the menu.",
+  "description": "Open recent files in the current window, and recent folders (optionally) in a new window.",
   "main": "./lib/main",
   "version": "1.0.0",
   "author": "Zren (https://github.com/Zren/)",

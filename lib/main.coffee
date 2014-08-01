@@ -63,7 +63,18 @@ OpenRecent.prototype.openFile = (path) ->
   atom.workspace.open path
 
 OpenRecent.prototype.openPath = (path) ->
-  atom.open { pathsToOpen: [path] }
+  replaceCurrentProject = false
+
+  if not atom.project.path and atom.config.get('open-recent.replaceNewWindowOnOpenDirectory')
+    replaceCurrentProject = true
+  else if atom.project.path and atom.config.get('open-recent.replaceProjectOnOpenDirectory')
+    replaceCurrentProject = true
+
+  if replaceCurrentProject
+    atom.project.setPath(path)
+    atom.workspaceView.trigger('tree-view:toggle-focus')
+  else
+    atom.open { pathsToOpen: [path] }
 
 OpenRecent.prototype.addListeners = ->
   #--- Commands
@@ -192,6 +203,8 @@ module.exports =
   configDefaults:
     maxRecentFiles: 8
     maxRecentDirectories: 8
+    replaceNewWindowOnOpenDirectory: true
+    replaceProjectOnOpenDirectory: false
 
   model: null
 
