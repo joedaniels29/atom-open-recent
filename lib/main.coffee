@@ -37,6 +37,10 @@ OpenRecent.prototype.onUriOpened = ->
 
   @insertFilePath(filePath) if filePath
 
+OpenRecent.prototype.onProjectPathChange = (projectPaths) ->
+  @insertCurrentPaths()
+
+
 #--- OpenRecent: Listeners
 OpenRecent.prototype.addCommandListeners = ->
   #--- Commands
@@ -58,30 +62,37 @@ OpenRecent.prototype.addCommandListeners = ->
     @db.set('paths', [])
     @update()
 
+OpenRecent.prototype.getProjectPath = (path) ->
+  return atom.project.getPaths()?[0]
 
 OpenRecent.prototype.openFile = (path) ->
   atom.workspace.open path
 
 OpenRecent.prototype.openPath = (path) ->
   replaceCurrentProject = false
+  options = {}
 
-  if not atom.project.path and atom.config.get('open-recent.replaceNewWindowOnOpenDirectory')
+  if not @getProjectPath() and atom.config.get('open-recent.replaceNewWindowOnOpenDirectory')
     replaceCurrentProject = true
-  else if atom.project.path and atom.config.get('open-recent.replaceProjectOnOpenDirectory')
+  else if @getProjectPath() and atom.config.get('open-recent.replaceProjectOnOpenDirectory')
     replaceCurrentProject = true
 
   if replaceCurrentProject
-    atom.project.setPath(path)
+    atom.project.setPaths([path])
     atom.workspaceView.trigger('tree-view:toggle-focus')
   else
-    atom.open { pathsToOpen: [path] }
+    atom.open {
+      pathsToOpen: [path]
+      newWindow: !atom.config.get('open-recent.replaceNewWindowOnOpenDirectory')
+    }
 
 OpenRecent.prototype.addListeners = ->
   #--- Commands
   @addCommandListeners()
 
   #--- Events
-  atom.workspace.on 'uri-opened', @onUriOpened.bind(@)
+  @onUriOpenedDisposable = atom.workspace.onDidOpen @onUriOpened.bind(@)
+  @onDidChangePathsDisposable = atom.project.onDidChangePaths @onProjectPathChange.bind(@)
 
   # Notify other windows during a setting data in localStorage.
   window.addEventListener "storage", @onLocalStorageEvent.bind(@)
@@ -99,7 +110,12 @@ OpenRecent.prototype.removeListeners = ->
   @removeCommandListeners()
 
   #--- Events
-  atom.workspaceView.off 'editor:attached'
+  if @onUriOpenedDisposable
+    @onUriOpenedDisposable.dispose()
+    @onUriOpenedDisposable = null
+  if @onDidChangePathsDisposable
+    @onDidChangePathsDisposable.dispose()
+    @onDidChangePathsDisposable = null
   window.removeEventListener 'storage', @onLocalStorageEvent.bind(@)
 
 #--- OpenRecent: Methods
@@ -110,26 +126,30 @@ OpenRecent.prototype.init = ->
   @db.set('paths', []) unless @db.get('paths')
   @db.set('files', []) unless @db.get('files')
 
-  @insertCurrentPath()
+  @insertCurrentPaths()
   @update()
 
-OpenRecent.prototype.insertCurrentPath = ->
+OpenRecent.prototype.insertCurrentPaths = ->
   return unless atom.project.getRootDirectory()
 
-  path = atom.project.getRootDirectory().path
   recentPaths = @db.get('paths')
+  for projectDirectory, index in atom.project.getDirectories()
+    # Ignore the second, third, ... folders in a project
+    continue if index > 0 and not atom.config.get('open-recent.listDirectoriesAddedToProject')
 
-  # Remove if already listed
-  index = recentPaths.indexOf path
-  if index != -1
-    recentPaths.splice index, 1
+    path = projectDirectory.path
 
-  recentPaths.splice 0, 0, path
+    # Remove if already listed
+    index = recentPaths.indexOf path
+    if index != -1
+      recentPaths.splice index, 1
 
-  # Limit
-  maxRecentDirectories = atom.config.get('open-recent.maxRecentDirectories')
-  if recentPaths.length > maxRecentDirectories
-    recentPaths.splice maxRecentDirectories, recentPaths.length - maxRecentDirectories
+    recentPaths.splice 0, 0, path
+
+    # Limit
+    maxRecentDirectories = atom.config.get('open-recent.maxRecentDirectories')
+    if recentPaths.length > maxRecentDirectories
+      recentPaths.splice maxRecentDirectories, recentPaths.length - maxRecentDirectories
 
   @db.set('paths', recentPaths)
   @update()
@@ -205,6 +225,7 @@ module.exports =
     maxRecentDirectories: 8
     replaceNewWindowOnOpenDirectory: true
     replaceProjectOnOpenDirectory: false
+    listDirectoriesAddedToProject: false
 
   model: null
 
