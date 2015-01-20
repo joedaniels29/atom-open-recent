@@ -2,13 +2,13 @@
   "name": "open-recent",
   "description": "Open recent files in the current window, and recent folders (optionally) in a new window.",
   "main": "./lib/main",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": "Zren (https://github.com/Zren/)",
   "contributors": [],
   "repository": "https://github.com/Zren/atom-open-recent",
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">0.148.0"
   },
   "dependencies": {}
 }

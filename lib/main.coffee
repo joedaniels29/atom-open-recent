@@ -20,6 +20,7 @@ DB.prototype.set = (name, value) ->
 #--- OpenRecent
 OpenRecent = ->
   @db = new DB('openRecent')
+  @commandListenerDisposables = []
   return @
 
 #--- OpenRecent: Event Handlers
@@ -47,20 +48,23 @@ OpenRecent.prototype.addCommandListeners = ->
   # open-recent:open-recent-file-#
   for index, path of @db.get('files')
     do (path) => # Explicit closure
-      atom.workspaceView.on "open-recent:open-recent-file-#{index}", =>
+      disposable = atom.commands.add "atom-workspace", "open-recent:open-recent-file-#{index}", =>
         @openFile path
+      @commandListenerDisposables.push disposable
 
   # open-recent:open-recent-path-#
   for index, path of @db.get('paths')
     do (path) => # Explicit closure
-      atom.workspaceView.on "open-recent:open-recent-path-#{index}", =>
+      disposable = atom.commands.add "atom-workspace", "open-recent:open-recent-path-#{index}", =>
         @openPath path
+      @commandListenerDisposables.push disposable
 
   # open-recent:clear
-  atom.workspaceView.on "open-recent:clear", =>
+  disposable = atom.commands.add "atom-workspace", "open-recent:clear", =>
     @db.set('files', [])
     @db.set('paths', [])
     @update()
+  @commandListenerDisposables.push disposable
 
 OpenRecent.prototype.getProjectPath = (path) ->
   return atom.project.getPaths()?[0]
@@ -79,7 +83,8 @@ OpenRecent.prototype.openPath = (path) ->
 
   if replaceCurrentProject
     atom.project.setPaths([path])
-    atom.workspaceView.trigger('tree-view:toggle-focus')
+    if workspaceElement = atom.views.getView(atom.workspace)
+      atom.commands.dispatch workspaceElement, 'tree-view:toggle-focus'
   else
     atom.open {
       pathsToOpen: [path]
@@ -99,11 +104,9 @@ OpenRecent.prototype.addListeners = ->
 
 OpenRecent.prototype.removeCommandListeners = ->
   #--- Commands
-  for index, path of @db.get('files')
-    atom.workspaceView.off "open-recent:open-recent-file-#{index}"
-  for index, path of @db.get('paths')
-    atom.workspaceView.off "open-recent:open-recent-path-#{index}"
-  atom.workspaceView.off "open-recent:clear"
+  for disposable in @commandListenerDisposables
+    disposable.dispose()
+  @commandListenerDisposables = []
 
 OpenRecent.prototype.removeListeners = ->
   #--- Commands
