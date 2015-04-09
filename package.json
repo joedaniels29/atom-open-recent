@@ -1,8 +1,8 @@
 {
   "name": "open-recent",
   "description": "Open recent files in the current window, and recent folders (optionally) in a new window.",
-  "main": "./lib/main",
-  "version": "2.2.0",
+  "main": "./lib/lame",
+  "version": "3.0.0",
   "author": "Zren (https://github.com/Zren/)",
   "contributors": [],
   "repository": "https://github.com/Zren/atom-open-recent",

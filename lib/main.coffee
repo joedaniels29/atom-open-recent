@@ -192,7 +192,22 @@ OpenRecent.prototype.createSubmenu = ->
   recentPaths = @db.get('paths')
   if recentPaths.length
     for index, path of recentPaths
-      submenu.push { label: path, command: "open-recent:open-recent-path-#{index}" }
+      pathLib = require('path')
+      submenu.push {
+        label: pathLib.basename(path)
+        command: "open-recent:open-recent-path-#{index}"
+        type: "checkbox"
+        checked: false
+        sublabel: path
+      }
+    submenu.push { type: "separator" }
+
+  projectDirectories = atom.project.getDirectories()
+  if projectDirectories.length > 0
+    if false
+      submenu.push { command: "open-recent:pin", label: "Pin #{projectDirectories[0].path}" }
+    else
+      submenu.push { command: "open-recent:unpin", label: "Unpin #{projectDirectories[0].path}" }
     submenu.push { type: "separator" }
 
   submenu.push { command: "open-recent:clear", label: "Clear List" }
