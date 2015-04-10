@@ -29,7 +29,7 @@ OpenRecent.prototype.onLocalStorageEvent = (e) ->
     @update()
 
 OpenRecent.prototype.onUriOpened = ->
-  editor = atom.workspace.getActiveEditor()
+  editor = atom.workspace.getActiveTextEditor()
   filePath = editor?.buffer?.file?.path
 
   # Ignore anything thats not a file.
@@ -133,7 +133,7 @@ OpenRecent.prototype.init = ->
   @update()
 
 OpenRecent.prototype.insertCurrentPaths = ->
-  return unless atom.project.getRootDirectory()
+  return unless atom.project.getDirectories().length > 0
 
   recentPaths = @db.get('paths')
   for projectDirectory, index in atom.project.getDirectories()
