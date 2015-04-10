@@ -223,17 +223,29 @@ OpenRecent.prototype.destroy = ->
 
 #--- Module
 module.exports =
-  configDefaults:
-    maxRecentFiles: 8
-    maxRecentDirectories: 8
-    replaceNewWindowOnOpenDirectory: true
-    replaceProjectOnOpenDirectory: false
-    listDirectoriesAddedToProject: false
+  config:
+    maxRecentFiles:
+      type: 'number'
+      default: 8
+    maxRecentDirectories:
+      type: 'number'
+      default: 8
+    replaceNewWindowOnOpenDirectory:
+      type: 'boolean'
+      default: true
+      description: 'When checked, opening a recent directory will "open" in the current window, but only if the window does not have a project path set. Eg: The window that appears when doing File > New Window.'
+    replaceProjectOnOpenDirectory:
+      type: 'boolean'
+      default: false
+      description: 'When checked, opening a recent directory will "open" in the current window, replacing the current project.'
+    listDirectoriesAddedToProject:
+      type: 'boolean'
+      default: false
+      description: 'When checked, the all root directories in a project will be added to the history and not just the 1st root directory.'
 
   model: null
 
   activate: ->
-    atom.config.setDefaults('open-recent', @configDefaults)
     @model = new OpenRecent()
     @model.init()
 
