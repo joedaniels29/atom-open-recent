@@ -206,6 +206,7 @@ OpenRecent.prototype.updateMenu = ->
         if item.command is "pane:reopen-closed-item" or item.label is "Open Recent"
           delete item.command
           item.label = "Open Recent"
+          item.enabled = true
           item.submenu = @createSubmenu()
           atom.menu.update()
           break # break for item
