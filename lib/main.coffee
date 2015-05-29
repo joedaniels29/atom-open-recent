@@ -204,9 +204,13 @@ OpenRecent.prototype.updateMenu = ->
     if dropdown.label is "File" or dropdown.label is "&File"
       for item in dropdown.submenu
         if item.command is "pane:reopen-closed-item" or item.label is "Open Recent"
+          delete item.accelerator
           delete item.command
+          delete item.click
           item.label = "Open Recent"
           item.enabled = true
+          item.metadata ?= {}
+          item.metadata.windowSpecific = false
           item.submenu = @createSubmenu()
           atom.menu.update()
           break # break for item
