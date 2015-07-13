@@ -185,14 +185,28 @@ OpenRecent.prototype.createSubmenu = ->
   recentFiles = @db.get('files')
   if recentFiles.length
     for index, path of recentFiles
-      submenu.push { label: path, command: "open-recent:open-recent-file-#{index}" }
+      menuItem = {
+        label: path
+        command: "open-recent:open-recent-file-#{index}"
+      }
+      if path.length > 100
+        menuItem.label = path.substr(-60)
+        menuItem.sublabel = path
+      submenu.push menuItem
     submenu.push { type: "separator" }
 
   # Root Paths
   recentPaths = @db.get('paths')
   if recentPaths.length
     for index, path of recentPaths
-      submenu.push { label: path, command: "open-recent:open-recent-path-#{index}" }
+      menuItem = {
+        label: path
+        command: "open-recent:open-recent-path-#{index}"
+      }
+      if path.length > 100
+        menuItem.label = path.substr(-60)
+        menuItem.sublabel = path
+      submenu.push menuItem
     submenu.push { type: "separator" }
 
   submenu.push { command: "open-recent:clear", label: "Clear List" }
