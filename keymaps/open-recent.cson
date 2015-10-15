@@ -1,8 +1,8 @@
 '.platform-darwin atom-text-editor':
-  'ctrl-L': 'open-recent:show'
+  'cmd-alt-o cmd-alt-p': 'open-recent:show'
 
 '.platform-win32 atom-text-editor':
-  'ctrl-L': 'open-recent:show'
+  'cmd-alt-o cmd-alt-p': 'open-recent:show'
 
 '.platform-linux atom-text-editor':
-  'ctrl-L': 'open-recent:show'
+  'cmd-alt-o cmd-alt-p': 'open-recent:show'
